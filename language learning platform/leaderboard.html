@@ -1,0 +1,14 @@
+<h2>Leaderboard</h2>
+<ul id="leaderboard-list"></ul>
+<script src="scripts/app.js"></script>
+
+const leaderboard = [
+    { username: "Alice", score: 85 },
+    { username: "Bob", score: 75 },
+    { username: "Charlie", score: 90 }
+];
+
+const list = document.getElementById("leaderboard-list");
+leaderboard.forEach(player => {
+    list.innerHTML += `<li>${player.username} - ${player.score}</li>`;
+});

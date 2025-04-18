@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>LinguaMaster Deluxe</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-purple-100 to-indigo-200 min-h-screen flex items-center justify-center">
+  <div id="app" class="bg-white p-6 rounded-2xl shadow-xl w-full max-w-md text-center">
+    <h1 class="text-3xl font-bold text-purple-700 mb-4">LinguaMaster 🌍</h1>
+    <button onclick="mainMenu()" class="btn">Start Learning</button>
+  </div>
+
+  <script>
+    const words = [
+      { en: "Hello", es: "Hola" },
+      { en: "Thanks", es: "Gracias" },
+      { en: "Goodbye", es: "Adiós" }
+    ];
+    let score = 0, current = 0;
+
+    function mainMenu() {
+      app.innerHTML = `
+        <h2 class="text-xl text-gray-700 mb-4">Choose Mode</h2>
+        <button onclick="vocab(0)" class="btn">🧠 Vocabulary</button>
+        <button onclick="quiz()" class="btn">📝 Quiz</button>
+        <button onclick="listening()" class="btn">🎧 Listening</button>
+        <button onclick="testOptions()" class="btn">📚 Final Test</button>
+      `;
+    }
+
+    // Vocabulary
+    function vocab(i) {
+      if (i < words.length) {
+        const w = words[i];
+        app.innerHTML = `
+          <h2 class="text-lg mb-2">${w.en}</h2>
+          <div class="bg-indigo-100 p-4 rounded-xl mb-4 font-medium">${w.en} ➜ ${w.es}</div>
+          <button onclick="vocab(${i + 1})" class="btn">Next</button>
+        `;
+      } else mainMenu();
+    }
+
+    // Quiz Mode
+    function quiz() {
+      const q = words[1], options = shuffle(["Hola", "Gracias", "Adiós"]);
+      app.innerHTML = `
+        <h2 class="text-xl mb-3">Quiz: What is "${q.en}" in Spanish?</h2>
+        ${options.map(o => `<button onclick="checkQuiz('${o}')" class="btn">${o}</button>`).join('')}
+      `;
+    }
+
+    function checkQuiz(ans) {
+      const correct = "Gracias";
+      score += ans === correct ? 1 : 0;
+      app.innerHTML = `
+        <h2 class="text-xl mb-3 ${ans === correct ? 'text-green-600' : 'text-red-600'}">
+          ${ans === correct ? '✅ Correct!' : '❌ Wrong!'}
+        </h2>
+        <p class="mb-2">Your Score: ${score}</p>
+        <button onclick="mainMenu()" class="btn">Back to Menu</button>
+      `;
+    }
+
+    // Listening Mode
+    function listening() {
+      const w = words[0], opts = shuffle(["Hola", "Gracias", "Adiós"]);
+      let speak = new SpeechSynthesisUtterance(w.en);
+      speechSynthesis.speak(speak);
+      app.innerHTML = `
+        <h2 class="text-lg mb-2">🎧 Listen and Choose</h2>
+        ${opts.map(o => `<button onclick="checkListen('${o}', 'Hola')" class="btn">${o}</button>`).join('')}
+      `;
+    }
+
+    function checkListen(ans, correct) {
+      score += ans === correct ? 1 : 0;
+      app.innerHTML = `
+        <h2 class="text-xl mb-3 ${ans === correct ? 'text-green-600' : 'text-red-600'}">
+          ${ans === correct ? '✅ Correct!' : '❌ Try again!'}
+        </h2>
+        <p class="mb-2">Your Score: ${score}</p>
+        <button onclick="mainMenu()" class="btn">Back to Menu</button>
+      `;
+    }
+
+    // Final Test Mode
+    function testOptions() {
+      current = 0; score = 0;
+      nextQ();
+    }
+
+    function nextQ() {
+      if (current < words.length) {
+        const q = words[current], opts = shuffle(["Hola", "Gracias", "Adiós"]);
+        app.innerHTML = `
+          <h2 class="text-xl mb-3">Test ${current + 1}: ${q.en} ➜ ?</h2>
+          ${opts.map(o => `<button onclick="checkTest('${o}', '${q.es}')" class="btn">${o}</button>`).join('')}
+        `;
+      } else {
+        app.innerHTML = `
+          <h2 class="text-xl text-purple-700 font-bold mb-2">🎉 Final Score: ${score}/${words.length}</h2>
+          <button onclick="mainMenu()" class="btn">Back to Menu</button>
+        `;
+      }
+    }
+
+    function checkTest(ans, correct) {
+      if (ans === correct) score++;
+      current++;
+      nextQ();
+    }
+
+    // Shuffle helper
+    const shuffle = arr => arr.sort(() => Math.random() - 0.5);
+
+    // Style shortcut
+    document.head.insertAdjacentHTML("beforeend", `
+      <style>
+        .btn {
+          display: block; width: 100%; margin: 0.5rem 0;
+          background: #7c3aed; color: white;
+          padding: 0.5rem 1rem; border-radius: 0.75rem;
+          font-weight: 600; transition: 0.3s;
+        }
+        .btn:hover { background: #5b21b6; }
+      </style>
+    `);
+  </script>
+</body>
+</html>
