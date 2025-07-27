@@ -1,131 +1,417 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>LinguaMaster Deluxe</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8">
+  <title>LingoMaster</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+    html, body { height: 100%; overflow: hidden; }
+    body {
+      background: linear-gradient(135deg, #ff9a9e, #fad0c4, #fbc2eb, #a18cd1, #fbc2eb, #ff9a9e);
+      background-size: 600% 600%;
+      animation: rainbow 20s ease infinite;
+      display: flex; justify-content: center; align-items: center;
+    }
+    @keyframes rainbow {
+      0% {background-position: 0% 50%;}
+      50% {background-position: 100% 50%;}
+      100% {background-position: 0% 50%;}
+    }
+    .page {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      width: 100%;
+      text-align: center;
+      padding: 20px;
+      color: white;
+      overflow: auto;
+    }
+    .active { display: flex; }
+    h1, h2 { margin: 20px; }
+    button {
+      padding: 15px 30px;
+      margin: 10px;
+      font-size: 18px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      background-color: white;
+      color: #333;
+      transition: 0.3s;
+    }
+    button:hover {
+      background: #ff6a88;
+      color: white;
+    }
+    .option-btn {
+      background-color: rgba(255, 255, 255, 0.85);
+      font-weight: bold;
+      width: 60%;
+    }
+    .home-btn {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      font-size: 30px;
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
+    }
+    .word-box {
+      font-size: 28px;
+      background: rgba(255,255,255,0.1);
+      padding: 20px;
+      border-radius: 15px;
+      margin: 20px;
+    }
+    select {
+      padding: 10px;
+      font-size: 16px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      border: none;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+    th, td {
+      border: 1px solid rgba(255,255,255,0.3);
+      padding: 10px;
+      background: rgba(255,255,255,0.1);
+      vertical-align: top;
+    }
+    th { font-size: 20px; }
+    td { font-size: 16px; }
+    .tts-btn {
+      margin-top: 8px;
+      padding: 6px 12px;
+      font-size: 14px;
+      border-radius: 8px;
+    }
+  </style>
 </head>
-<body class="bg-gradient-to-br from-purple-100 to-indigo-200 min-h-screen flex items-center justify-center">
-  <div id="app" class="bg-white p-6 rounded-2xl shadow-xl w-full max-w-md text-center">
-    <h1 class="text-3xl font-bold text-purple-700 mb-4">LinguaMaster 🌍</h1>
-    <button onclick="mainMenu()" class="btn">Start Learning</button>
+<body>
+
+  <!-- Page 1: Welcome -->
+  <div class="page active" id="page1">
+    <h1>Welcome to LingoMaster</h1>
+    <button onclick="goToPage(2)">Start Learning</button>
+  </div>
+
+  <!-- Page 2: Options -->
+  <div class="page" id="page2">
+    <button class="home-btn" onclick="goToPage(1)">🏠</button>
+    <h1>Choose an Option</h1>
+    <select id="languageSelector" onchange="changeLanguage()">
+      <option value="english">English</option>
+      <option value="spanish">Spanish</option>
+      <option value="french">French</option>
+    </select>
+    <button class="option-btn" onclick="goToPage(3)">📚 Vocabulary</button>
+    <button class="option-btn" onclick="speakCurrentWord()">🔊 Voice</button>
+    <button class="option-btn" onclick="goToPage(4)">🧠 Quiz</button>
+    <button class="option-btn" onclick="goToPage(6)">🔍 Compare</button>
+  </div>
+
+  <!-- Page 3: Vocabulary -->
+  <div class="page" id="page3">
+    <button class="home-btn" onclick="goToPage(2)">🏠</button>
+    <h2 id="langTitle">Vocabulary</h2>
+    <div class="word-box" id="wordBox">Word will appear here</div>
+    <button onclick="speakCurrentWord()">🔊 Pronounce</button>
+    <button onclick="nextWord()">Next</button>
+  </div>
+
+  <!-- Page 4: Quiz -->
+  <div class="page" id="page4">
+    <button class="home-btn" onclick="goToPage(2)">🏠</button>
+    <h2>Quick Quiz</h2>
+    <div class="word-box" id="quizQ">Question will appear here</div>
+    <div id="quizOptions"></div>
+    <p id="quizFeedback"></p>
+  </div>
+
+  <!-- Page 5: Progress -->
+  <div class="page" id="page5">
+    <button class="home-btn" onclick="goToPage(2)">🏠</button>
+    <h2>Your Progress</h2>
+    <p>You learned <span id="progressWords">0</span> words!</p>
+    <p>Quiz Score: <span id="quizScore">0</span>/5</p>
+    <button onclick="resetApp()">Restart</button>
+  </div>
+
+  <!-- Page 6: Compare Languages -->
+  <div class="page" id="page6">
+    <button class="home-btn" onclick="goToPage(2)">🏠</button>
+    <h2>Compare Languages</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>English</th>
+          <th>Spanish</th>
+          <th>French</th>
+        </tr>
+      </thead>
+      <tbody id="compareBody">
+        <!-- Populated by JS -->
+      </tbody>
+    </table>
   </div>
 
   <script>
-    const words = [
-      { en: "Hello", es: "Hola" },
-      { en: "Thanks", es: "Gracias" },
-      { en: "Goodbye", es: "Adiós" }
-    ];
-    let score = 0, current = 0;
+    let currentPage = 1;
+    let currentIndex = 0;
+    let learnedWords = 0;
+    let score = 0;
+    let quizIndex = 0;
+    let language = "english";
 
-    function mainMenu() {
-      app.innerHTML = `
-        <h2 class="text-xl text-gray-700 mb-4">Choose Mode</h2>
-        <button onclick="vocab(0)" class="btn">🧠 Vocabulary</button>
-        <button onclick="quiz()" class="btn">📝 Quiz</button>
-        <button onclick="listening()" class="btn">🎧 Listening</button>
-        <button onclick="testOptions()" class="btn">📚 Final Test</button>
-      `;
+    const vocabulary = {
+      english: [
+        { word: "Apple", sentence: "I eat an apple every day." },
+        { word: "Book", sentence: "This book is interesting." },
+        { word: "Chair", sentence: "She sat on the chair." },
+        { word: "Dog", sentence: "The dog is barking loudly." },
+        { word: "Elephant", sentence: "The elephant is huge." },
+        { word: "Flower", sentence: "I picked a red flower." },
+        { word: "Guitar", sentence: "He plays the guitar." },
+        { word: "House", sentence: "The house is blue." },
+        { word: "Ice", sentence: "The ice is melting." },
+        { word: "Juice", sentence: "She drinks orange juice." },
+        { word: "Kite", sentence: "The kite flies high." },
+        { word: "Lamp", sentence: "Turn on the lamp." },
+        { word: "Moon", sentence: "The moon is bright." },
+        { word: "Notebook", sentence: "My notebook is full." },
+        { word: "Orange", sentence: "I peeled the orange." },
+        { word: "Pen", sentence: "Write with a pen." },
+        { word: "Queen", sentence: "The queen waved." },
+        { word: "River", sentence: "The river flows fast." },
+        { word: "Sun", sentence: "The sun is hot." },
+        { word: "Tiger", sentence: "A tiger is dangerous." },
+        { word: "Umbrella", sentence: "Use an umbrella when it rains." },
+        { word: "Violin", sentence: "She plays the violin." },
+        { word: "Window", sentence: "Open the window." },
+        { word: "Xylophone", sentence: "Play the xylophone." },
+        { word: "Yogurt", sentence: "Eat some yogurt." },
+        { word: "Zebra", sentence: "Zebras have stripes." },
+        { word: "Ball", sentence: "He kicked the ball." },
+        { word: "Clock", sentence: "Look at the clock." },
+        { word: "Door", sentence: "Close the door." },
+        { word: "Egg", sentence: "I boiled an egg." }
+      ],
+      spanish: [
+        { word: "Manzana", sentence: "Como una manzana cada día." },
+        { word: "Libro", sentence: "Este libro es interesante." },
+        { word: "Silla", sentence: "Ella se sentó en la silla." },
+        { word: "Perro", sentence: "El perro ladra fuerte." },
+        { word: "Elefante", sentence: "El elefante es grande." },
+        { word: "Flor", sentence: "Cogí una flor roja." },
+        { word: "Guitarra", sentence: "Él toca la guitarra." },
+        { word: "Casa", sentence: "La casa es azul." },
+        { word: "Hielo", sentence: "El hielo se está derritiendo." },
+        { word: "Jugo", sentence: "Ella bebe jugo de naranja." },
+        { word: "Cometa", sentence: "La cometa vuela alto." },
+        { word: "Lámpara", sentence: "Enciende la lámpara." },
+        { word: "Luna", sentence: "La luna está brillante." },
+        { word: "Cuaderno", sentence: "Mi cuaderno está lleno." },
+        { word: "Naranja", sentence: "Pelé la naranja." },
+        { word: "Pluma", sentence: "Escribe con una pluma." },
+        { word: "Reina", sentence: "La reina saludó." },
+        { word: "Río", sentence: "El río fluye rápido." },
+        { word: "Sol", sentence: "El sol está caliente." },
+        { word: "Tigre", sentence: "Un tigre es peligroso." },
+        { word: "Paraguas", sentence: "Usa un paraguas cuando llueva." },
+        { word: "Violín", sentence: "Ella toca el violín." },
+        { word: "Ventana", sentence: "Abre la ventana." },
+        { word: "Xilófono", sentence: "Toca el xilófono." },
+        { word: "Yogur", sentence: "Come un poco de yogur." },
+        { word: "Cebra", sentence: "Las cebras tienen rayas." },
+        { word: "Pelota", sentence: "Él pateó la pelota." },
+        { word: "Reloj", sentence: "Mira el reloj." },
+        { word: "Puerta", sentence: "Cierra la puerta." },
+        { word: "Huevo", sentence: "Herví un huevo." }
+      ],
+      french: [
+        { word: "Pomme", sentence: "Je mange une pomme chaque jour." },
+        { word: "Livre", sentence: "Ce livre est intéressant." },
+        { word: "Chaise", sentence: "Elle s'est assise sur la chaise." },
+        { word: "Chien", sentence: "Le chien aboie fort." },
+        { word: "Éléphant", sentence: "L'éléphant est énorme." },
+        { word: "Fleur", sentence: "J'ai cueilli une fleur rouge." },
+        { word: "Guitare", sentence: "Il joue de la guitare." },
+        { word: "Maison", sentence: "La maison est bleue." },
+        { word: "Glace", sentence: "La glace fond." },
+        { word: "Jus", sentence: "Elle boit du jus d'orange." },
+        { word: "Cerf-volant", sentence: "Le cerf-volant vole haut." },
+        { word: "Lampe", sentence: "Allume la lampe." },
+        { word: "Lune", sentence: "La lune est brillante." },
+        { word: "Cahier", sentence: "Mon cahier est plein." },
+        { word: "Orange", sentence: "J'ai épluché l'orange." },
+        { word: "Stylo", sentence: "Écris avec un stylo." },
+        { word: "Reine", sentence: "La reine a salué." },
+        { word: "Rivière", sentence: "La rivière coule vite." },
+        { word: "Soleil", sentence: "Le soleil est chaud." },
+        { word: "Tigre", sentence: "Un tigre est dangereux." },
+        { word: "Parapluie", sentence: "Utilise un parapluie quand il pleut." },
+        { word: "Violon", sentence: "Elle joue du violon." },
+        { word: "Fenêtre", sentence: "Ouvre la fenêtre." },
+        { word: "Xylophone", sentence: "Joue du xylophone." },
+        { word: "Yaourt", sentence: "Mange un yaourt." },
+        { word: "Zèbre", sentence: "Les zèbres ont des rayures." },
+        { word: "Balle", sentence: "Il a frappé la balle." },
+        { word: "Horloge", sentence: "Regarde l'horloge." },
+        { word: "Porte", sentence: "Ferme la porte." },
+        { word: "Œuf", sentence: "J'ai bouilli un œuf." }
+      ]
+    };
+
+    let words = vocabulary[language];
+
+    function goToPage(page) {
+      document.getElementById(`page${currentPage}`).classList.remove("active");
+      currentPage = page;
+      document.getElementById(`page${currentPage}`).classList.add("active");
+      if (page === 3) { updateLangTitle(); showWord(); }
+      if (page === 4) startQuiz();
+      if (page === 5) showProgress();
+      if (page === 6) populateCompare();
     }
 
-    // Vocabulary
-    function vocab(i) {
-      if (i < words.length) {
-        const w = words[i];
-        app.innerHTML = `
-          <h2 class="text-lg mb-2">${w.en}</h2>
-          <div class="bg-indigo-100 p-4 rounded-xl mb-4 font-medium">${w.en} ➜ ${w.es}</div>
-          <button onclick="vocab(${i + 1})" class="btn">Next</button>
-        `;
-      } else mainMenu();
+    function changeLanguage() {
+      language = document.getElementById("languageSelector").value;
+      words = vocabulary[language];
+      currentIndex = 0;
+      learnedWords = 0;
+      updateLangTitle();
     }
 
-    // Quiz Mode
-    function quiz() {
-      const q = words[1], options = shuffle(["Hola", "Gracias", "Adiós"]);
-      app.innerHTML = `
-        <h2 class="text-xl mb-3">Quiz: What is "${q.en}" in Spanish?</h2>
-        ${options.map(o => `<button onclick="checkQuiz('${o}')" class="btn">${o}</button>`).join('')}
-      `;
+    function updateLangTitle() {
+      const titles = { english: "English Vocabulary", spanish: "Vocabulario Español", french: "Vocabulaire Français" };
+      document.getElementById("langTitle").innerText = titles[language] || "Vocabulary";
     }
 
-    function checkQuiz(ans) {
-      const correct = "Gracias";
-      score += ans === correct ? 1 : 0;
-      app.innerHTML = `
-        <h2 class="text-xl mb-3 ${ans === correct ? 'text-green-600' : 'text-red-600'}">
-          ${ans === correct ? '✅ Correct!' : '❌ Wrong!'}
-        </h2>
-        <p class="mb-2">Your Score: ${score}</p>
-        <button onclick="mainMenu()" class="btn">Back to Menu</button>
-      `;
-    }
-
-    // Listening Mode
-    function listening() {
-      const w = words[0], opts = shuffle(["Hola", "Gracias", "Adiós"]);
-      let speak = new SpeechSynthesisUtterance(w.en);
-      speechSynthesis.speak(speak);
-      app.innerHTML = `
-        <h2 class="text-lg mb-2">🎧 Listen and Choose</h2>
-        ${opts.map(o => `<button onclick="checkListen('${o}', 'Hola')" class="btn">${o}</button>`).join('')}
-      `;
-    }
-
-    function checkListen(ans, correct) {
-      score += ans === correct ? 1 : 0;
-      app.innerHTML = `
-        <h2 class="text-xl mb-3 ${ans === correct ? 'text-green-600' : 'text-red-600'}">
-          ${ans === correct ? '✅ Correct!' : '❌ Try again!'}
-        </h2>
-        <p class="mb-2">Your Score: ${score}</p>
-        <button onclick="mainMenu()" class="btn">Back to Menu</button>
-      `;
-    }
-
-    // Final Test Mode
-    function testOptions() {
-      current = 0; score = 0;
-      nextQ();
-    }
-
-    function nextQ() {
-      if (current < words.length) {
-        const q = words[current], opts = shuffle(["Hola", "Gracias", "Adiós"]);
-        app.innerHTML = `
-          <h2 class="text-xl mb-3">Test ${current + 1}: ${q.en} ➜ ?</h2>
-          ${opts.map(o => `<button onclick="checkTest('${o}', '${q.es}')" class="btn">${o}</button>`).join('')}
-        `;
+    function showWord() {
+      if (currentIndex < words.length) {
+        const w = words[currentIndex];
+        document.getElementById("wordBox").innerText = `${w.word} — ${w.sentence}`;
       } else {
-        app.innerHTML = `
-          <h2 class="text-xl text-purple-700 font-bold mb-2">🎉 Final Score: ${score}/${words.length}</h2>
-          <button onclick="mainMenu()" class="btn">Back to Menu</button>
-        `;
+        goToPage(5);
       }
     }
 
-    function checkTest(ans, correct) {
-      if (ans === correct) score++;
-      current++;
-      nextQ();
+    function nextWord() {
+      currentIndex++;
+      learnedWords++;
+      if (currentIndex < words.length) showWord();
+      else goToPage(5);
     }
 
-    // Shuffle helper
-    const shuffle = arr => arr.sort(() => Math.random() - 0.5);
+    function speakCurrentWord() {
+      const w = words[currentIndex] || words[0];
+      const utt = new SpeechSynthesisUtterance(`${w.word}. ${w.sentence}`);
+      const langs = { english: 'en-US', spanish: 'es-ES', french: 'fr-FR' };
+      utt.lang = langs[language];
+      speechSynthesis.speak(utt);
+    }
 
-    // Style shortcut
-    document.head.insertAdjacentHTML("beforeend", `
-      <style>
-        .btn {
-          display: block; width: 100%; margin: 0.5rem 0;
-          background: #7c3aed; color: white;
-          padding: 0.5rem 1rem; border-radius: 0.75rem;
-          font-weight: 600; transition: 0.3s;
-        }
-        .btn:hover { background: #5b21b6; }
-      </style>
-    `);
+    // Quiz
+    function startQuiz() {
+      quizIndex = 0;
+      score = 0;
+      document.getElementById("quizFeedback").innerText = "";
+      showQuizQ();
+    }
+
+    function showQuizQ() {
+      document.getElementById("quizFeedback").innerText = "";
+      const cw = words[quizIndex];
+      document.getElementById("quizQ").innerText = `Choose the correct word for: ${cw.sentence}`;
+      const correct = cw.word;
+      const opts = [correct];
+      while (opts.length < 4) {
+        const r = words[Math.floor(Math.random() * words.length)].word;
+        if (!opts.includes(r)) opts.push(r);
+      }
+      opts.sort(() => Math.random() - 0.5);
+      const div = document.getElementById("quizOptions");
+      div.innerHTML = "";
+      opts.forEach(o => {
+        const btn = document.createElement("button");
+        btn.className = "option-btn";
+        btn.innerText = o;
+        btn.onclick = () => checkAnswer(o, correct);
+        div.appendChild(btn);
+      });
+    }
+
+    function checkAnswer(sel, corr) {
+      const fb = document.getElementById("quizFeedback");
+      if (sel.toLowerCase() === corr.toLowerCase()) {
+        score++;
+        fb.innerText = "✅ Correct!";
+      } else {
+        fb.innerText = `❌ Correct answer: ${corr}`;
+      }
+      quizIndex++;
+      setTimeout(() => {
+        if (quizIndex < 5) showQuizQ();
+        else goToPage(5);
+      }, 1000);
+    }
+
+    function showProgress() {
+      document.getElementById("progressWords").innerText = learnedWords;
+      document.getElementById("quizScore").innerText = score;
+    }
+
+    function resetApp() {
+      if (confirm("Restart LingoMaster?")) {
+        currentIndex = 0; learnedWords = 0; score = 0;
+        goToPage(1);
+      }
+    }
+
+    // Compare page
+    function populateCompare() {
+      const tbody = document.getElementById("compareBody");
+      tbody.innerHTML = "";
+      for (let i = 0; i < 30; i++) {
+        const e = vocabulary.english[i];
+        const s = vocabulary.spanish[i];
+        const f = vocabulary.french[i];
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${i+1}</td>
+          <td>
+            <strong>${e.word}</strong><br>${e.sentence}
+            <button class="tts-btn" onclick="speakCompare('english', ${i})">🔊</button>
+          </td>
+          <td>
+            <strong>${s.word}</strong><br>${s.sentence}
+            <button class="tts-btn" onclick="speakCompare('spanish', ${i})">🔊</button>
+          </td>
+          <td>
+            <strong>${f.word}</strong><br>${f.sentence}
+            <button class="tts-btn" onclick="speakCompare('french', ${i})">🔊</button>
+          </td>`;
+        tbody.appendChild(tr);
+      }
+    }
+
+    function speakCompare(lang, idx) {
+      const w = vocabulary[lang][idx];
+      const utt = new SpeechSynthesisUtterance(`${w.word}. ${w.sentence}`);
+      const langs = { english: 'en-US', spanish: 'es-ES', french: 'fr-FR' };
+      utt.lang = langs[lang];
+      speechSynthesis.speak(utt);
+    }
   </script>
-</body>
-</html>
+</body>  
+</html>  
